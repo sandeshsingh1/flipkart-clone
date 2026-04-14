@@ -3,7 +3,9 @@ import Home from "./pages/Home";
 import ProductDetail from "./pages/ProductDetail";
 import Navbar from "./components/Navbar";
 import Cart from "./pages/Cart"; // ✅ FIX
-
+import Checkout from "./pages/Checkout";
+import Success from "./pages/Success";
+import Wishlist from "./pages/Wishlist";
 function App() {
   return (
     <BrowserRouter>
@@ -12,6 +14,9 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/success/:id" element={<Success />} />
+        <Route path="/wishlist" element={<Wishlist />} />
       </Routes>
     </BrowserRouter>
   );

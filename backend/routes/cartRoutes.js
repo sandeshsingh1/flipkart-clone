@@ -59,5 +59,8 @@ router.delete("/remove/:id", async (req, res) => {
 
   res.json({ msg: "Removed" });
 });
-
+router.delete("/clear", async (req, res) => {
+  await pool.query("DELETE FROM cart_items WHERE cart_id=1");
+  res.json({ msg: "Cart cleared" });
+});
 module.exports = router;

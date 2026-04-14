@@ -3,6 +3,7 @@ const pool = require("../db");
 
 const router = express.Router();
 
+// ✅ GET all products (search + filter)
 router.get("/", async (req, res) => {
   const { search, category } = req.query;
 
@@ -27,6 +28,31 @@ router.get("/", async (req, res) => {
 
   const result = await pool.query(query, values);
   res.json(result.rows);
+});
+
+
+// ✅ GET product by ID (IMPORTANT)
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  const product = await pool.query(
+    "SELECT * FROM products WHERE id=$1",
+    [id]
+  );
+
+  const images = await pool.query(
+    "SELECT image_url FROM product_images WHERE product_id=$1",
+    [id]
+  );
+
+  if (product.rows.length === 0) {
+    return res.status(404).json({ msg: "Product not found" });
+  }
+
+  res.json({
+    ...product.rows[0],
+    images: images.rows,
+  });
 });
 
 module.exports = router;

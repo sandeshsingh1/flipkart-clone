@@ -19,6 +19,9 @@ export default function Navbar() {
         <Link to="/cart" style={{ color: "white" }}>
           Cart
         </Link>
+        <Link to="/wishlist" style={{ color: "white", marginLeft: "15px" }}>
+          Wishlist
+        </Link>
       </div>
     </div>
   );

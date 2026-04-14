@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-
+import { useNavigate } from "react-router-dom";
 export default function Cart() {
   const [cart, setCart] = useState([]);
-
+const navigate = useNavigate();
   const fetchCart = async () => {
     const res = await axios.get("http://localhost:5000/cart");
     setCart(res.data);
@@ -26,10 +26,7 @@ export default function Cart() {
     fetchCart();
   };
 
-  const total = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
     <div>
@@ -43,14 +40,11 @@ export default function Cart() {
           <input
             type="number"
             value={item.quantity}
-            onChange={(e) =>
-              updateQty(item.id, e.target.value)
-            }
+            onChange={(e) => updateQty(item.id, e.target.value)}
           />
 
-          <button onClick={() => removeItem(item.id)}>
-            Remove
-          </button>
+          <button onClick={() => removeItem(item.id)}>Remove</button>
+          <button onClick={() => navigate("/checkout")}>Checkout</button>
         </div>
       ))}
 
