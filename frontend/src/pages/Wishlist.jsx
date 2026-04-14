@@ -14,15 +14,24 @@ export default function Wishlist() {
   }, []);
 
   return (
-    <div>
-      <h1>Wishlist</h1>
-      {items.map((i) => (
-        <div key={i.id}>
-          <img src={i.image_url} width="100" />
-          <p>{i.name}</p>
-          <p>₹{i.price}</p>
-        </div>
-      ))}
-    </div>
+    <div className="container">
+  <h1>Wishlist</h1>
+
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+      gap: "20px",
+    }}
+  >
+    {items.map((p) => (
+      <div className="card" key={p.id}>
+        <img src={p.image_url} className="product-img" />
+        <h3>{p.name}</h3>
+        <p className="price">₹{p.price}</p>
+      </div>
+    ))}
+  </div>
+</div>
   );
 }

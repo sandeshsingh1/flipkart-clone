@@ -5,21 +5,25 @@ export default function Orders() {
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:5000/orders").then(res => {
-      setOrders(res.data);
-    });
+    fetchOrders();
   }, []);
 
+  const fetchOrders = async () => {
+    const res = await axios.get("http://localhost:5000/orders");
+    setOrders(res.data);
+  };
+
   return (
-    <div>
-      <h1>My Orders</h1>
-      {orders.map(o => (
-        <div key={o.id}>
-          <p>Order ID: {o.id}</p>
-          <p>Total: ₹{o.total_amount}</p>
-          <p>{o.address}</p>
-        </div>
-      ))}
+   <div className="container">
+  <h1>My Orders</h1>
+
+  {orders.map((o) => (
+    <div className="order-box" key={o.id}>
+      <p><b>Order ID:</b> {o.id}</p>
+      <p><b>Total:</b> ₹{o.total_amount}</p>
+      <p><b>Address:</b> {o.address}</p>
     </div>
+  ))}
+</div>
   );
 }

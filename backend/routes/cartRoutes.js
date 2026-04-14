@@ -6,7 +6,7 @@ const router = express.Router();
 // 👉 Get Cart Items
 router.get("/", async (req, res) => {
   const result = await pool.query(`
-    SELECT ci.id, p.name, p.price, ci.quantity
+   SELECT ci.id, ci.product_id, p.name, p.price, ci.quantity
     FROM cart_items ci
     JOIN products p ON ci.product_id = p.id
   `);
@@ -41,21 +41,24 @@ router.post("/add", async (req, res) => {
 
 // 👉 Update Quantity
 router.put("/update", async (req, res) => {
-  const { id, quantity } = req.body;
+  const { product_id, quantity } = req.body;
 
   await pool.query(
-    "UPDATE cart_items SET quantity=$1 WHERE id=$2",
-    [quantity, id]
+    "UPDATE cart_items SET quantity=$1 WHERE product_id=$2 AND cart_id=1",
+    [quantity, product_id]
   );
 
   res.json({ msg: "Updated" });
 });
 
 // 👉 Remove Item
-router.delete("/remove/:id", async (req, res) => {
-  const { id } = req.params;
+router.delete("/remove/:product_id", async (req, res) => {
+  const { product_id } = req.params;
 
-  await pool.query("DELETE FROM cart_items WHERE id=$1", [id]);
+  await pool.query(
+    "DELETE FROM cart_items WHERE product_id=$1",
+    [product_id]
+  );
 
   res.json({ msg: "Removed" });
 });

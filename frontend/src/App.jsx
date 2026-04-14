@@ -6,6 +6,7 @@ import Cart from "./pages/Cart"; // ✅ FIX
 import Checkout from "./pages/Checkout";
 import Success from "./pages/Success";
 import Wishlist from "./pages/Wishlist";
+import Orders from "./pages/Orders";
 function App() {
   return (
     <BrowserRouter>
@@ -17,6 +18,7 @@ function App() {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/success/:id" element={<Success />} />
         <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/orders" element={<Orders />} />
       </Routes>
     </BrowserRouter>
   );
