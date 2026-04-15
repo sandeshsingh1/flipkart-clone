@@ -2,7 +2,7 @@ const pool = require("./db");
 
 async function init() {
   try {
-    // 🔥 DROP OLD TABLES (important)
+    // DROP
     await pool.query(`DROP TABLE IF EXISTS order_items CASCADE`);
     await pool.query(`DROP TABLE IF EXISTS orders CASCADE`);
     await pool.query(`DROP TABLE IF EXISTS wishlist CASCADE`);
@@ -12,7 +12,7 @@ async function init() {
 
     console.log("Old tables removed ✅");
 
-    // ✅ CREATE NEW TABLES
+    // CREATE
     await pool.query(`
       CREATE TABLE products (
         id SERIAL PRIMARY KEY,
@@ -35,7 +35,7 @@ async function init() {
     await pool.query(`
       CREATE TABLE cart_items (
         id SERIAL PRIMARY KEY,
-        cart_id INT,
+        user_id INT,
         product_id INT REFERENCES products(id),
         quantity INT DEFAULT 1
       );
@@ -44,6 +44,7 @@ async function init() {
     await pool.query(`
       CREATE TABLE wishlist (
         id SERIAL PRIMARY KEY,
+        user_id INT,
         product_id INT REFERENCES products(id)
       );
     `);
@@ -51,6 +52,7 @@ async function init() {
     await pool.query(`
       CREATE TABLE orders (
         id SERIAL PRIMARY KEY,
+        user_id INT,
         address TEXT,
         total_amount INT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -68,7 +70,7 @@ async function init() {
 
     console.log("Tables created ✅");
 
-    // 🔥 INSERT DATA
+    // INSERT
     await pool.query(`
       INSERT INTO products (name, price, category, description)
       VALUES 
