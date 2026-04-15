@@ -1,24 +1,27 @@
 const express = require("express");
 const pool = require("../db");
-
+const { sendOrderEmail, sendCancelEmail } = require("../utils/mailer");
 const router = express.Router();
 
 // 👉 Get Orders
 router.get("/", async (req, res) => {
   const orders = await pool.query(
-    "SELECT * FROM orders WHERE user_id=1 ORDER BY id DESC"
+    "SELECT * FROM orders WHERE user_id=1 ORDER BY id DESC",
   );
 
   const result = [];
 
   for (let order of orders.rows) {
-    const items = await pool.query(`
+    const items = await pool.query(
+      `
       SELECT oi.*, p.name, pi.image_url
       FROM order_items oi
       JOIN products p ON oi.product_id = p.id
       LEFT JOIN product_images pi ON p.id = pi.product_id
       WHERE oi.order_id = $1
-    `, [order.id]);
+    `,
+      [order.id],
+    );
 
     result.push({
       ...order,
@@ -63,55 +66,71 @@ router.post("/", async (req, res) => {
     // 4. Create order
     const order = await pool.query(
       "INSERT INTO orders (user_id, total_amount, address) VALUES (1,$1,$2) RETURNING id",
-      [total, address]
+      [total, address],
     );
-
     const orderId = order.rows[0].id;
-
-    // 5. Insert order items + reduce stock
+try {
+  await sendOrderEmail("sandeshsingh9648@gmail.com", orderId, total);
+} catch (err) {
+  console.log("Email failed:", err.message);
+}    // 5. Insert order items + reduce stock
     for (let item of cartItems.rows) {
       // insert order item
       await pool.query(
         "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ($1,$2,$3,$4)",
-        [orderId, item.product_id, item.quantity, item.price]
+        [orderId, item.product_id, item.quantity, item.price],
       );
 
       // 🔥 reduce stock
-      await pool.query(
-        "UPDATE products SET stock = stock - $1 WHERE id = $2",
-        [item.quantity, item.product_id]
-      );
+      await pool.query("UPDATE products SET stock = stock - $1 WHERE id = $2", [
+        item.quantity,
+        item.product_id,
+      ]);
     }
 
     // 6. Clear cart
     await pool.query("DELETE FROM cart_items WHERE cart_id = 1");
 
     res.json({ msg: "Order placed", orderId });
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: "Server error" });
   }
 });
 router.delete("/:id", async (req, res) => {
-  const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-  // optional: restore stock
-  const items = await pool.query(
-    "SELECT * FROM order_items WHERE order_id=$1",
-    [id]
-  );
-
-  for (let item of items.rows) {
-    await pool.query(
-      "UPDATE products SET stock = stock + $1 WHERE id=$2",
-      [item.quantity, item.product_id]
+    // 🔥 get items (for stock restore)
+    const items = await pool.query(
+      "SELECT * FROM order_items WHERE order_id=$1",
+      [id]
     );
+
+    // restore stock
+    for (let item of items.rows) {
+      await pool.query(
+        "UPDATE products SET stock = stock + $1 WHERE id=$2",
+        [item.quantity, item.product_id]
+      );
+    }
+
+    // delete order
+    await pool.query("DELETE FROM order_items WHERE order_id=$1", [id]);
+    await pool.query("DELETE FROM orders WHERE id=$1", [id]);
+
+    // 🔥 SEND EMAIL (SAFE)
+    try {
+      await sendCancelEmail("your_email@gmail.com", id);
+    } catch (err) {
+      console.log("Email failed:", err.message); // ✅ don't crash
+    }
+
+    res.json({ msg: "Order cancelled" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
   }
-
-  await pool.query("DELETE FROM order_items WHERE order_id=$1", [id]);
-  await pool.query("DELETE FROM orders WHERE id=$1", [id]);
-
-  res.json({ msg: "Order cancelled" });
 });
 module.exports = router;
