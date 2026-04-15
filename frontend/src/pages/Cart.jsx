@@ -7,101 +7,104 @@ export default function Cart() {
   const navigate = useNavigate();
 
   const fetchCart = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/cart");
-      setCart(res.data);
-    } catch (err) {
-      console.error(err);
-    }
+    const res = await axios.get("http://localhost:5000/cart");
+    setCart(res.data);
   };
 
   useEffect(() => {
     fetchCart();
   }, []);
 
-  // 🔥 UPDATE QUANTITY
   const updateQty = async (product_id, qty) => {
-    try {
-      await axios.put("http://localhost:5000/cart/update", {
-        product_id,
-        quantity: qty,
-      });
-      fetchCart();
-    } catch (err) {
-      console.error(err);
-    }
+    await axios.put("http://localhost:5000/cart/update", {
+      product_id,
+      quantity: qty,
+    });
+    fetchCart();
   };
 
-  // 🔥 REMOVE ITEM
   const removeItem = async (product_id) => {
-    try {
-      await axios.delete(
-        `http://localhost:5000/cart/remove/${product_id}`
-      );
-      fetchCart();
-    } catch (err) {
-      console.error(err);
-    }
+    await axios.delete(
+      `http://localhost:5000/cart/remove/${product_id}`
+    );
+    fetchCart();
   };
 
-  // 🔥 TOTAL
   const total = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
+const buySingleItem = async (item) => {
+  try {
+    // 1. Clear cart
+    await axios.delete("http://localhost:5000/cart/clear");
 
+    // 2. Add only this product
+    await axios.post("http://localhost:5000/cart/add", {
+      product_id: item.product_id,
+      quantity: item.quantity,
+    });
+
+    // 3. Go to checkout
+    navigate("/checkout");
+  } catch (err) {
+    console.error(err);
+  }
+};
   return (
     <div className="container">
-      <h1>Cart</h1>
+  <h1>Cart</h1>
 
-      {cart.length === 0 ? (
-        <p>Your cart is empty</p>
-      ) : (
-        <>
-          {cart.map((item) => (
-            <div className="cart-item" key={item.product_id}>
-              <div>
-                <h3>{item.name}</h3>
-                <p className="price">₹{item.price}</p>
-              </div>
+  {cart.length === 0 ? (
+    <p>Your cart is empty</p>
+  ) : (
+    <>
+      {cart.map((item) => (
+        <div className="cart-item" key={item.product_id}>
+  <div>
+    <h3>{item.name}</h3>
+    <p className="price">₹{item.price}</p>
+  </div>
 
-              <div>
-                {/* 🔥 QUANTITY */}
-                <input
-                  type="number"
-                  value={item.quantity}
-                  min="1"
-                  onChange={(e) =>
-                    updateQty(
-                      item.product_id,
-                      parseInt(e.target.value)
-                    )
-                  }
-                  style={{ width: "50px" }}
-                />
+  <div>
+    {/* QUANTITY */}
+    <input
+      type="number"
+      value={item.quantity}
+      min="1"
+      onChange={(e) =>
+        updateQty(item.product_id, parseInt(e.target.value))
+      }
+      style={{ width: "60px", marginRight: "10px" }}
+    />
 
-                {/* 🔥 REMOVE */}
-                <button
-                  className="btn"
-                  onClick={() => removeItem(item.product_id)}
-                >
-                  Remove
-                </button>
-              </div>
-            </div>
-          ))}
+    {/* REMOVE */}
+    <button
+      className="btn"
+      onClick={() => removeItem(item.product_id)}
+    >
+      Remove
+    </button>
 
-          {/* 🔥 TOTAL + CHECKOUT */}
-          <h2>Total: ₹{total}</h2>
+    {/* 🔥 BUY SINGLE */}
+    <button
+      className="btn btn-buy"
+      onClick={() => buySingleItem(item)}
+    >
+      Buy Now
+    </button>
+  </div>
+</div>
+      ))}
 
-          <button
-            className="btn btn-buy"
-            onClick={() => navigate("/checkout")}
-          >
-            Checkout
-          </button>
-        </>
-      )}
-    </div>
+      <div className="cart-summary">
+        <h2>Total: ₹{total}</h2>
+        <button className="btn-buy" onClick={() => navigate("/checkout")}>
+          Checkout
+        </button>
+      </div>
+    </>
+  )}
+</div>
   );
 }

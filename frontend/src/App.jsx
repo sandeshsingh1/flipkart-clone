@@ -7,6 +7,7 @@ import Checkout from "./pages/Checkout";
 import Success from "./pages/Success";
 import Wishlist from "./pages/Wishlist";
 import Orders from "./pages/Orders";
+import Login from "./pages/Login";
 function App() {
   return (
     <BrowserRouter>
@@ -19,6 +20,7 @@ function App() {
         <Route path="/success/:id" element={<Success />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/orders" element={<Orders />} />
+        {/* <Route path="/login" element={<Login />} /> */}
       </Routes>
     </BrowserRouter>
   );

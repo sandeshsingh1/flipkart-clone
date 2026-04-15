@@ -14,21 +14,22 @@ export default function Wishlist() {
   }, []);
 
   return (
-    <div className="container">
+   <div className="container">
   <h1>Wishlist</h1>
 
-  <div
-    style={{
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-      gap: "20px",
-    }}
-  >
+  <div className="wishlist-grid">
     {items.map((p) => (
       <div className="card" key={p.id}>
         <img src={p.image_url} className="product-img" />
         <h3>{p.name}</h3>
         <p className="price">₹{p.price}</p>
+
+        <button
+          className="btn-cart"
+          onClick={() => addToCart(p.id)}
+        >
+          Add to Cart
+        </button>
       </div>
     ))}
   </div>

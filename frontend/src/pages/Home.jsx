@@ -8,10 +8,14 @@ export default function Home() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // 🔥 GET TOKEN (for auth)
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
     fetchProducts();
   }, [location]);
 
+  // 🔥 FETCH ALL PRODUCTS (NO AUTH NEEDED)
   const fetchProducts = async () => {
     try {
       const res = await axios.get("http://localhost:5000/products");
@@ -21,6 +25,7 @@ export default function Home() {
     }
   };
 
+  // 🔍 SEARCH
   const handleSearch = async () => {
     try {
       if (search.trim() === "") {
@@ -29,7 +34,7 @@ export default function Home() {
       }
 
       const res = await axios.get(
-        `http://localhost:5000/products?search=${search}`
+        `http://localhost:5000/products?search=${search}`,
       );
       setProducts(res.data);
     } catch (err) {
@@ -37,13 +42,14 @@ export default function Home() {
     }
   };
 
+  // 🏷️ FILTER
   const handleCategory = async (category) => {
     try {
       if (category === "") {
         fetchProducts();
       } else {
         const res = await axios.get(
-          `http://localhost:5000/products?category=${category}`
+          `http://localhost:5000/products?category=${category}`,
         );
         setProducts(res.data);
       }
@@ -122,38 +128,47 @@ export default function Home() {
 
             {/* 🏷️ DETAILS */}
             <h3 style={{ fontSize: "16px" }}>{p.name}</h3>
-            <p style={{ color: "green", fontWeight: "bold" }}>
-              ₹{p.price}
-            </p>
+            <p style={{ color: "green", fontWeight: "bold" }}>₹{p.price}</p>
 
             {/* 🛒 BUTTONS */}
             <div style={{ marginTop: "10px" }}>
+              {/* 🔥 ADD TO CART (WITH AUTH) */}
               <button
-                onClick={(e) => {
+                onClick={async (e) => {
                   e.stopPropagation();
-                  axios.post("http://localhost:5000/cart/add", {
-                    product_id: p.id,
-                  });
-                  alert("Added to cart");
-                }}
-                style={{
-                  background: "#ff9f00",
-                  color: "white",
-                  border: "none",
-                  padding: "6px 10px",
-                  marginRight: "5px",
-                  cursor: "pointer",
+
+                  try {
+                    await axios.post(
+                      "http://localhost:5000/cart/add",
+                      { product_id: p.id },
+                      {
+                        headers: { Authorization: `Bearer ${token}` },
+                      },
+                    );
+
+                    alert("Added to cart ✅");
+                  } catch (err) {
+                    console.error(err);
+                    alert("Error adding to cart ❌");
+                  }
                 }}
               >
                 Add to Cart
               </button>
 
+              {/* 🔥 WISHLIST (WITH AUTH) */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  axios.post("http://localhost:5000/wishlist/add", {
-                    product_id: p.id,
-                  });
+
+                  axios.post(
+                    "http://localhost:5000/wishlist/add",
+                    { product_id: p.id },
+                    {
+                      headers: { Authorization: `Bearer ${token}` }, // ✅ AUTH
+                    },
+                  );
+
                   alert("Added to wishlist");
                 }}
                 style={{

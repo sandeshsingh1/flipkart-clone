@@ -4,21 +4,38 @@ import axios from "axios";
 export default function Orders() {
   const [orders, setOrders] = useState([]);
 
-  // 🔥 Fetch orders from backend
+  // 🔥 GET TOKEN
+  const token = localStorage.getItem("token");
+
+  // 🔥 Fetch orders (WITH AUTH)
   const fetchOrders = async () => {
-    const res = await axios.get("http://localhost:5000/orders");
-    setOrders(res.data);
+    try {
+      const res = await axios.get("http://localhost:5000/orders", {
+        headers: { Authorization: `Bearer ${token}` }, // ✅ FIX
+      });
+      setOrders(res.data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   useEffect(() => {
     fetchOrders();
   }, []);
 
-  // 🔥 Cancel order
+  // 🔥 Cancel order (WITH AUTH)
   const cancelOrder = async (id) => {
-    await axios.delete(`http://localhost:5000/orders/${id}`);
-    fetchOrders(); // refresh UI
+    try {
+      await axios.delete(`http://localhost:5000/orders/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }, // ✅ FIX
+      });
+      fetchOrders();
+    } catch (err) {
+      console.error(err);
+    }
   };
+
+  // 🔥 STATUS COLOR
   const getStatusColor = (date) => {
     const orderDate = new Date(date);
     const now = new Date();
@@ -28,67 +45,64 @@ export default function Orders() {
     if (diffDays < 3) return "blue";
     return "green";
   };
-const getStatus = (date) => {
-  const orderDate = new Date(date);
-  const now = new Date();
 
-  const diffDays = (now - orderDate) / (1000 * 60 * 60 * 24);
+  // 🔥 STATUS TEXT
+  const getStatus = (date) => {
+    const orderDate = new Date(date);
+    const now = new Date();
+    const diffDays = (now - orderDate) / (1000 * 60 * 60 * 24);
 
-  if (diffDays < 1) return "🕒 Processing";
-  if (diffDays < 3) return "🚚 Shipped";
-  return "✔ Delivered";
-};
+    if (diffDays < 1) return "🕒 Processing";
+    if (diffDays < 3) return "🚚 Shipped";
+    return "✔ Delivered";
+  };
+
   return (
     <div className="container">
       <h1 className="orders-title">My Orders</h1>
 
       {orders.map((o) => (
         <div className="order-card" key={o.id}>
+          
           {/* 🔥 ORDER HEADER */}
           <div className="order-header">
             <div>
-              <p>
-                <b>Order ID:</b> {o.id}
-              </p>
-              <p>
-                <b>Total:</b> ₹{o.total_amount}
-              </p>
-              <p>
-                <b>Address:</b> {o.address}
-              </p>
-              {/* 🔥 ORDER STATUS */}
+              <p><b>Order ID:</b> {o.id}</p>
+              <p><b>Total:</b> ₹{o.total_amount}</p>
+              <p><b>Address:</b> {o.address}</p>
+
+              {/* 🔥 STATUS */}
               <p
                 className="order-status"
                 style={{ color: getStatusColor(o.created_at) }}
               >
                 {getStatus(o.created_at)}
-              </p>{" "}
+              </p>
             </div>
 
-            {/* 🔥 CANCEL BUTTON */}
-            <button className="cancel-btn" onClick={() => cancelOrder(o.id)}>
+            {/* 🔥 CANCEL */}
+            <button
+              className="cancel-btn"
+              onClick={() => cancelOrder(o.id)}
+            >
               Cancel
             </button>
           </div>
 
-          {/* 🔥 ORDER ITEMS */}
+          {/* 🔥 ITEMS */}
           <div className="order-items">
-            {o.items.map((item, i) => (
+            {o.items?.map((item, i) => (
               <div className="order-item" key={i}>
-                {/* PRODUCT IMAGE */}
                 <img src={item.image_url} />
 
-                {/* PRODUCT NAME */}
                 <p className="item-name">{item.name}</p>
-
-                {/* QUANTITY */}
                 <p className="item-qty">Qty: {item.quantity}</p>
 
-                {/* ⭐ RATING (STATIC FOR NOW) */}
                 <div className="rating">⭐⭐⭐⭐☆</div>
               </div>
             ))}
           </div>
+
         </div>
       ))}
     </div>
