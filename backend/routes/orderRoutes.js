@@ -4,7 +4,6 @@ const { sendOrderEmail, sendCancelEmail } = require("../utils/mailer");
 
 const router = express.Router();
 
-
 // 👉 GET ORDERS
 router.get("/", async (req, res) => {
   try {
@@ -25,12 +24,12 @@ router.post("/", async (req, res) => {
   const { address } = req.body;
 
   try {
-    // 🔥 GET CART ITEMS
+    // 🔥 GET CART ITEMS (FIXED: user_id instead of cart_id)
     const cartItems = await pool.query(`
       SELECT ci.product_id, ci.quantity, p.price
       FROM cart_items ci
       JOIN products p ON ci.product_id = p.id
-      WHERE ci.cart_id = 1
+      WHERE ci.user_id = 1
     `);
 
     if (cartItems.rows.length === 0) {
@@ -51,22 +50,22 @@ router.post("/", async (req, res) => {
 
     const orderId = order.rows[0].id;
 
-    // 🔥 INSERT ORDER ITEMS
+    // 🔥 INSERT ORDER ITEMS (FIXED: removed price column)
     for (let item of cartItems.rows) {
       await pool.query(
-        "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ($1,$2,$3,$4)",
-        [orderId, item.product_id, item.quantity, item.price]
+        "INSERT INTO order_items (order_id, product_id, quantity) VALUES ($1,$2,$3)",
+        [orderId, item.product_id, item.quantity]
       );
     }
 
-    // 🔥 CLEAR CART
-    await pool.query("DELETE FROM cart_items WHERE cart_id=1");
+    // 🔥 CLEAR CART (FIXED)
+    await pool.query("DELETE FROM cart_items WHERE user_id=1");
 
-    // 🔥🔥🔥 SEND EMAIL (IMPORTANT)
+    // 🔥 SEND EMAIL
     try {
       console.log("📧 Sending order email...");
       await sendOrderEmail(
-        "sandeshsingh9648@gmail.com", // 🔥 change if needed
+        "sandeshsingh9648@gmail.com",
         orderId,
         total
       );
