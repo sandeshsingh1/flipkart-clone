@@ -2,7 +2,7 @@ const pool = require("./db");
 
 async function init() {
   try {
-    // DROP
+    // 🔥 DROP OLD TABLES (clean reset)
     await pool.query(`DROP TABLE IF EXISTS order_items CASCADE`);
     await pool.query(`DROP TABLE IF EXISTS orders CASCADE`);
     await pool.query(`DROP TABLE IF EXISTS wishlist CASCADE`);
@@ -12,7 +12,7 @@ async function init() {
 
     console.log("Old tables removed ✅");
 
-    // CREATE
+    // ✅ PRODUCTS
     await pool.query(`
       CREATE TABLE products (
         id SERIAL PRIMARY KEY,
@@ -24,6 +24,7 @@ async function init() {
       );
     `);
 
+    // ✅ PRODUCT IMAGES
     await pool.query(`
       CREATE TABLE product_images (
         id SERIAL PRIMARY KEY,
@@ -32,6 +33,7 @@ async function init() {
       );
     `);
 
+    // ✅ CART (with user_id)
     await pool.query(`
       CREATE TABLE cart_items (
         id SERIAL PRIMARY KEY,
@@ -41,6 +43,7 @@ async function init() {
       );
     `);
 
+    // ✅ WISHLIST (with user_id)
     await pool.query(`
       CREATE TABLE wishlist (
         id SERIAL PRIMARY KEY,
@@ -49,6 +52,7 @@ async function init() {
       );
     `);
 
+    // ✅ ORDERS (with user_id)
     await pool.query(`
       CREATE TABLE orders (
         id SERIAL PRIMARY KEY,
@@ -59,18 +63,20 @@ async function init() {
       );
     `);
 
+    // ✅ ORDER ITEMS (with price)
     await pool.query(`
       CREATE TABLE order_items (
         id SERIAL PRIMARY KEY,
         order_id INT REFERENCES orders(id),
         product_id INT REFERENCES products(id),
-        quantity INT
+        quantity INT,
+        price INT
       );
     `);
 
     console.log("Tables created ✅");
 
-    // INSERT
+    // 🔥 INSERT SAMPLE PRODUCTS
     await pool.query(`
       INSERT INTO products (name, price, category, description)
       VALUES 
@@ -79,6 +85,7 @@ async function init() {
       ('Shoes', 2000, 'fashion', 'Comfortable shoes');
     `);
 
+    // 🔥 INSERT IMAGES
     await pool.query(`
       INSERT INTO product_images (product_id, image_url)
       VALUES
@@ -87,7 +94,7 @@ async function init() {
       (3, 'https://via.placeholder.com/150');
     `);
 
-    console.log("Data inserted ✅");
+    console.log("Sample data inserted ✅");
 
   } catch (err) {
     console.error(err);
