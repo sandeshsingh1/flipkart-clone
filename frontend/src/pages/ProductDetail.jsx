@@ -13,7 +13,7 @@ export default function ProductDetail() {
   }, []);
 
   const fetchProduct = async () => {
-    const res = await axios.get(`http://localhost:5000/products/${id}`);
+    const res = await axios.get(`https://flipkart-clone-7idk.onrender.com/products/${id}`);
     setProduct(res.data);
   };
 
@@ -22,7 +22,7 @@ export default function ProductDetail() {
   // ✅ ADD TO CART (NO AUTH)
   const addToCart = async () => {
     try {
-      await axios.post("http://localhost:5000/cart/add", {
+      await axios.post("https://flipkart-clone-7idk.onrender.com/cart/add", {
         product_id: product.id,
       });
       alert("Added to cart");
@@ -34,9 +34,9 @@ export default function ProductDetail() {
   // ✅ BUY NOW
   const buyNow = async () => {
     try {
-      await axios.delete("http://localhost:5000/cart/clear");
+      await axios.delete("https://flipkart-clone-7idk.onrender.com/cart/clear");
 
-      await axios.post("http://localhost:5000/cart/add", {
+      await axios.post("https://flipkart-clone-7idk.onrender.com/cart/add", {
         product_id: product.id,
       });
 

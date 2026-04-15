@@ -5,7 +5,7 @@ export default function Wishlist() {
   const [items, setItems] = useState([]);
 
   const fetchWishlist = async () => {
-    const res = await axios.get("http://localhost:5000/wishlist");
+    const res = await axios.get("https://flipkart-clone-7idk.onrender.com/wishlist");
     setItems(res.data);
   };
 

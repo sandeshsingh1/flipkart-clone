@@ -18,7 +18,7 @@ export default function Home() {
   // 🔥 FETCH ALL PRODUCTS (NO AUTH NEEDED)
   const fetchProducts = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/products");
+      const res = await axios.get("https://flipkart-clone-7idk.onrender.com/products");
       setProducts(res.data);
     } catch (err) {
       console.error(err);
@@ -34,7 +34,7 @@ export default function Home() {
       }
 
       const res = await axios.get(
-        `http://localhost:5000/products?search=${search}`,
+        `https://flipkart-clone-7idk.onrender.com/products?search=${search}`,
       );
       setProducts(res.data);
     } catch (err) {
@@ -49,7 +49,7 @@ export default function Home() {
         fetchProducts();
       } else {
         const res = await axios.get(
-          `http://localhost:5000/products?category=${category}`,
+          `https://flipkart-clone-7idk.onrender.com/products?category=${category}`,
         );
         setProducts(res.data);
       }
@@ -139,7 +139,7 @@ export default function Home() {
 
                   try {
                     await axios.post(
-                      "http://localhost:5000/cart/add",
+                      "https://flipkart-clone-7idk.onrender.com/cart/add",
                       { product_id: p.id },
                       {
                         headers: { Authorization: `Bearer ${token}` },
@@ -162,7 +162,7 @@ export default function Home() {
                   e.stopPropagation();
 
                   axios.post(
-                    "http://localhost:5000/wishlist/add",
+                    "https://flipkart-clone-7idk.onrender.com/wishlist/add",
                     { product_id: p.id },
                     {
                       headers: { Authorization: `Bearer ${token}` }, // ✅ AUTH

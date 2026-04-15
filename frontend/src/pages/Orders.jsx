@@ -10,7 +10,7 @@ export default function Orders() {
   // 🔥 Fetch orders (WITH AUTH)
   const fetchOrders = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/orders", {
+      const res = await axios.get("https://flipkart-clone-7idk.onrender.com/orders", {
         headers: { Authorization: `Bearer ${token}` }, // ✅ FIX
       });
       setOrders(res.data);
@@ -26,7 +26,7 @@ export default function Orders() {
   // 🔥 Cancel order (WITH AUTH)
   const cancelOrder = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/orders/${id}`, {
+      await axios.delete(`https://flipkart-clone-7idk.onrender.com/orders/${id}`, {
         headers: { Authorization: `Bearer ${token}` }, // ✅ FIX
       });
       fetchOrders();

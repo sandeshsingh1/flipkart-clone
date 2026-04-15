@@ -12,12 +12,12 @@ export default function Checkout() {
   }, []);
 
   const fetchCart = async () => {
-    const res = await axios.get("http://localhost:5000/cart");
+    const res = await axios.get("https://flipkart-clone-7idk.onrender.com/cart");
     setCart(res.data);
   };
 
   const placeOrder = async () => {
-    const res = await axios.post("http://localhost:5000/orders", {
+    const res = await axios.post("https://flipkart-clone-7idk.onrender.com/orders", {
       address,
     });
 
