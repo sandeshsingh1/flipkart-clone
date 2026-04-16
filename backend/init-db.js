@@ -1,8 +1,16 @@
-const pool = require("./db");
+require("dotenv").config();
+const { Pool } = require("pg");
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
 
 async function init() {
   try {
-    // 🔥 DROP TABLES
+    console.log("🚀 Initializing database...");
+
+    // 🔥 DROP TABLES (order matters)
     await pool.query(`DROP TABLE IF EXISTS order_items CASCADE`);
     await pool.query(`DROP TABLE IF EXISTS orders CASCADE`);
     await pool.query(`DROP TABLE IF EXISTS wishlist CASCADE`);
@@ -11,14 +19,14 @@ async function init() {
     await pool.query(`DROP TABLE IF EXISTS products CASCADE`);
     await pool.query(`DROP TABLE IF EXISTS users CASCADE`);
 
-    console.log("Old tables removed ✅");
+    console.log("🗑️ Old tables removed");
 
-    // ✅ USERS (IMPORTANT)
+    // ✅ USERS
     await pool.query(`
       CREATE TABLE users (
         id SERIAL PRIMARY KEY,
-        email VARCHAR(255) UNIQUE,
-        password TEXT
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password TEXT NOT NULL
       );
     `);
 
@@ -73,7 +81,7 @@ async function init() {
       );
     `);
 
-    // ✅ ORDER ITEMS (FIXED)
+    // ✅ ORDER ITEMS (IMPORTANT: includes price)
     await pool.query(`
       CREATE TABLE order_items (
         id SERIAL PRIMARY KEY,
@@ -84,9 +92,9 @@ async function init() {
       );
     `);
 
-    console.log("Tables created ✅");
+    console.log("✅ Tables created");
 
-    // 🔥 SAMPLE USER (VERY IMPORTANT)
+    // 🔥 INSERT TEST USER (id = 1 guaranteed)
     await pool.query(`
       INSERT INTO users (email, password)
       VALUES ('test@gmail.com', '123456');
@@ -98,7 +106,7 @@ async function init() {
       VALUES 
       ('iPhone 14', 70000, 'Electronics', 'Apple smartphone'),
       ('Samsung S22', 60000, 'Electronics', 'Samsung flagship'),
-      ('Shoes', 2000, 'Fashion', 'Comfortable shoes');
+      ('Nike Shoes', 3000, 'Fashion', 'Comfortable running shoes');
     `);
 
     // 🔥 IMAGES
@@ -110,12 +118,13 @@ async function init() {
       (3, 'https://via.placeholder.com/150');
     `);
 
-    console.log("Sample data inserted ✅");
+    console.log("📦 Sample data inserted");
 
+    console.log("🎉 DB READY SUCCESSFULLY");
   } catch (err) {
-    console.error(err);
+    console.error("❌ INIT ERROR:", err);
   } finally {
-    pool.end();
+    await pool.end(); // only here
   }
 }
 
